@@ -32,11 +32,13 @@ p{color:var(--mut);font-size:15.5px}
 .cd{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--lime);margin:8px 0 2px}
 .cd small{display:block;font-size:10.5px;letter-spacing:.18em;color:var(--mut);margin-top:3px}
 .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
-.actions a{text-decoration:none;font-weight:700;font-size:14px;border-radius:10px;padding:12px 20px;transition:.25s}
+.actions a,.actions button{text-decoration:none;font-weight:700;font-size:14px;border-radius:10px;padding:12px 20px;transition:.25s;border:0}
 .primary{background:var(--lime);color:var(--ink)}
 .primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px -10px rgba(200,245,66,.6)}
-.ghost{border:1px solid var(--line);color:var(--mut)}
-.ghost:hover{color:var(--lime);border-color:var(--lime)}
+.ghost{border:1px solid var(--line)!important;background:transparent;color:var(--mut)}
+.ghost:hover{color:var(--lime);border-color:var(--lime)!important}
+.retry{background:var(--gold);color:var(--ink)}
+.retry:hover{transform:translateY(-2px);box-shadow:0 12px 30px -10px rgba(255,176,32,.6)}
 .fine{margin-top:22px;font-size:12px;color:var(--mut)}
 .err{color:#ffb4a3}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
@@ -55,6 +57,7 @@ p{color:var(--mut);font-size:15.5px}
   </ul>
   <div class="cd" id="cd">--:--:--<small>UNTIL YOUR FIRST SWEEP</small></div>
   <div class="actions">
+    <button class="retry" id="retryBtn" hidden>Retry confirmation</button>
     <a class="primary" href="console.html?preview=1">Preview your console</a>
     <a class="ghost" href="index.html">Back to home</a>
   </div>
@@ -63,10 +66,10 @@ p{color:var(--mut);font-size:15.5px}
 <script>
 (function(){
 "use strict";
-var API="https://khdnibwyzqhbpkgfppt.supabase.co/functions/v1/";
+var API="https://khdri1bwyzqhbpkgfppt.supabase.co/functions/v1/";
 var p=new URLSearchParams(location.search);
 var ref=p.get("reference")||p.get("trxref")||"";
-var tries=0;
+var tries=0,busy=false;
 function tick(){
   var now=new Date(),next=new Date(now);next.setUTCHours(5,0,0,0);
   if(next<=now)next.setUTCDate(next.getUTCDate()+1);
@@ -81,25 +84,34 @@ function done(email,amount){
   document.getElementById("kick").textContent="Subscription active";
   document.getElementById("title").textContent="Welcome aboard.";
   document.getElementById("sub").textContent="Payment of ₦"+Number(amount||5000).toLocaleString()+" confirmed for "+(email||"your email")+". Your first brief lands at 06:00 WAT.";
+  document.getElementById("retryBtn").hidden=true;
 }
 function fail(msg){
   document.getElementById("kick").textContent="Check needed";
   document.getElementById("title").textContent="We could not confirm yet.";
-  document.getElementById("sub").innerHTML='<span class="err">'+msg+'</span> If you completed payment, your activation webhook may still be in flight — reload this page in a minute, or contact josephstones100@gmail.com.';
+  document.getElementById("sub").innerHTML='<span class="err">'+msg+'</span> If you completed payment, your activation webhook may still be in flight — retry, or contact josephstones100@gmail.com.';
+  document.getElementById("retryBtn").hidden=false;
 }
+function poll(){
+  if(busy)return;busy=true;tries++;
+  fetch(API+"verify-payment?reference="+encodeURIComponent(ref))
+    .then(function(r){if(!r.ok)throw new Error("http");return r.json()})
+    .then(function(j){
+      busy=false;
+      if(j.status==="success"||j.status==="active"){done(j.email,j.amount);return}
+      if(tries<10){setTimeout(poll,3000)}else fail("Transaction status: "+(j.status||"unknown")+".");
+    })
+    .catch(function(){busy=false;if(tries<10)setTimeout(poll,3000);else fail("Network error while confirming.")});
+}
+document.getElementById("retryBtn").addEventListener("click",function(){
+  tries=0;
+  document.getElementById("kick").textContent="Confirming payment";
+  document.getElementById("title").textContent="Activating your brief…";
+  document.getElementById("sub").textContent="Re-checking your Paystack transaction now.";
+  this.hidden=true;poll();
+});
 if(!ref){fail("No payment reference in this link.");}
-else{
-  (function poll(){
-    tries++;
-    fetch(API+"verify-payment?reference="+encodeURIComponent(ref))
-      .then(function(r){return r.json()})
-      .then(function(j){
-        if(j.status==="success"||j.status==="active"){done(j.email,j.amount);return}
-        if(tries<10){setTimeout(poll,3000)}else fail("Transaction status: "+(j.status||"unknown")+".");
-      })
-      .catch(function(){if(tries<10)setTimeout(poll,3000);else fail("Network error while confirming.")});
-  })();
-}
+else poll();
 })();
 </script>
 </body>
