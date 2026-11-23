@@ -93,6 +93,7 @@ aside{position:sticky;top:calc(var(--navh) + 16px);align-self:start;display:flex
 .empty,.gate{border:1px dashed var(--line);border-radius:13px;padding:36px 26px;text-align:center;color:var(--mut);font-size:14px}
 .gate h2{color:var(--tx);font-size:20px;margin-bottom:10px}
 .gate .btn{width:auto;display:inline-block;margin:14px 6px 0}
+.gate .err{color:#ffb4a3;font-size:12.5px;margin-top:10px}
 .banner{border:1px solid rgba(255,176,32,.45);background:rgba(255,176,32,.1);color:#ffd489;border-radius:11px;padding:10px 14px;font-size:12.5px;margin-bottom:12px}
 .scrim{position:fixed;inset:0;background:rgba(6,18,11,.6);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:.3s;z-index:70}
 .scrim.on{opacity:1;pointer-events:auto}
@@ -194,6 +195,7 @@ aside{position:sticky;top:calc(var(--navh) + 16px);align-self:start;display:flex
     <div class="gate" id="gate" hidden>
       <h2>This console is private</h2>
       <p>Open it from the “Your console” link inside any Opportunity Radar email, or explore a preview session.</p>
+      <p class="err" id="gateErr" hidden></p>
       <a class="btn" href="index.html">Back to home</a>
       <a class="btn" href="console.html?preview=1">Open preview</a>
     </div>
@@ -226,7 +228,7 @@ aside{position:sticky;top:calc(var(--navh) + 16px);align-self:start;display:flex
 <script>
 (function(){
 "use strict";
-var API="https://khdnibwyzqhbpkgfppt.supabase.co/functions/v1/";
+var API="https://khdri1bwyzqhbpkgfppt.supabase.co/functions/v1/";
 var SITE="https://onyifx.github.io/opportunity-radar-site/";
 var CATS={tender:{label:"Nigerian tender",color:"#ffb020"},ngo:{label:"NGO / grant",color:"#10a35a"},remote:{label:"Remote contract",color:"#3aa6ff"}};
 var SAMPLE=[
@@ -390,7 +392,6 @@ $("#delView").addEventListener("click",function(){
   var backup=prefs.views[n];delete prefs.views[n];save();state.view="";refreshViews();
   toast("View deleted · "+n,function(){prefs.views[n]=backup;save();refreshViews();toast("View restored")});
 });
-/* priority drag */
 function renderPrio(){
   $("#prio").innerHTML=prefs.prio.map(function(c,i){
     return '<li draggable="true" data-cat="'+c+'"><span class="grip">⠿</span><span class="sw" style="background:'+CATS[c].color+'"></span>'+CATS[c].label+'<span class="n">#'+(i+1)+'</span></li>';
@@ -406,7 +407,6 @@ $("#prio").addEventListener("drop",function(e){
   arr.splice(arr.indexOf(to),0,dragCat);prefs.prio=arr;save();renderPrio();render();toast("Priority updated");
 });
 $("#prio").addEventListener("dragend",function(){document.querySelectorAll(".prio li").forEach(function(x){x.classList.remove("over")});dragCat=null});
-/* countdown */
 function tick(){
   var now=new Date();var next=new Date(now);
   next.setUTCHours(5,0,0,0);if(next<=now)next.setUTCDate(next.getUTCDate()+1);
@@ -416,7 +416,6 @@ function tick(){
   $("#cd").innerHTML=p(h)+":"+p(m)+":"+p(ss)+"<small>UNTIL NEXT SWEEP · 06:00 WAT</small>";
 }
 tick();setInterval(tick,1000);
-/* subscription + cancel/undo */
 function paintSub(){
   var pill=$("#statusPill");
   if(PREVIEW){pill.textContent="PREVIEW";pill.className="pill preview";$("#sEmail").textContent="preview session";$("#sStatus").textContent="preview";$("#sSince").textContent="—";$("#sRenew").textContent="—";$("#cancelBtn").disabled=true;$("#copyLink").disabled=true;return}
@@ -436,26 +435,27 @@ $("#cancelBtn").addEventListener("click",function(){
   var b=this;
   if(!b.classList.contains("armed")){b.classList.add("armed");b.textContent="Confirm cancel — click again";clearTimeout(armTimer);armTimer=setTimeout(function(){b.classList.remove("armed");b.textContent="Cancel subscription"},5000);return}
   clearTimeout(armTimer);b.classList.remove("armed");b.textContent="Cancel subscription";b.disabled=true;
-  fetch(API+"unsubscribe?email="+encodeURIComponent(EMAIL)+"&token="+encodeURIComponent(TOKEN)).then(function(){
+  fetch(API+"unsubscribe?email="+encodeURIComponent(EMAIL)+"&token="+encodeURIComponent(TOKEN)).then(function(r){
+    if(!r.ok&&r.type!=="opaqueredirect")throw new Error("bad");
     SUB.status="cancelled";paintSub();
     toast("Subscription cancelled",function(){
       fetch(API+"unsubscribe?email="+encodeURIComponent(EMAIL)+"&token="+encodeURIComponent(TOKEN)+"&undo=1").then(function(){SUB.status="active";paintSub();toast("Subscription restored")});
     });
   }).catch(function(){b.disabled=false;toast("Network error — not cancelled")});
 });
-/* boot */
 function useSample(){DATA=SAMPLE.slice();$("#previewBanner").hidden=false;render()}
+function showGate(msg){$("#gate").hidden=false;$(".controls").style.display="none";$(".listhead").style.display="none";if(msg){$("#gateErr").hidden=false;$("#gateErr").textContent=msg}paintSub()}
 if(PREVIEW){useSample();paintSub();refreshViews();}
 else if(EMAIL&&TOKEN){
   fetch(API+"my-briefs?email="+encodeURIComponent(EMAIL)+"&token="+encodeURIComponent(TOKEN))
-   .then(function(r){if(!r.ok)throw new Error("gate");return r.json()})
+   .then(function(r){if(r.status===403||r.status===400)throw new Error("link");if(!r.ok)throw new Error("net");return r.json()})
    .then(function(j){
      SUB=j.subscriber;DATA=(j.briefs||[]).map(function(b){return{id:b.id,cat:catOf(b.category),title:b.title,org:b.company,source:b.source,pub:(b.published||"").slice(0,10),dead:null,ngn:null,usd:null,loc:b.location,url:b.url,sum:"Delivered in your daily brief. Full notice on the source page.",sent:(b.sent_at||"").slice(0,10)}});
      paintSub();render();refreshViews();
      if(!DATA.length){$("#rows").innerHTML='<div class="empty">Your archive is empty for now — the first live brief lands at 06:00 WAT. Meanwhile, explore a preview.</div>'}
    })
-   .catch(function(){$("#gate").hidden=false;$(".controls").style.display="none";$(".listhead").style.display="none";paintSub()});
-}else{$("#gate").hidden=false;$(".controls").style.display="none";$(".listhead").style.display="none";paintSub()}
+   .catch(function(err){showGate(err.message==="link"?"This console link is invalid or expired. Use the newest “Your console” link from your latest brief email.":"Could not reach the radar API. Check your connection and reload.")});
+}else{showGate("")}
 refreshViews();render();
 })();
 </script>
