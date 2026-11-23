@@ -158,9 +158,9 @@ main::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-grad
 
   <div class="grid">
     <div id="colA">
-      <section class="panel" id="p-subs" draggable="false">
+      <section class="panel" id="p-subs">
         <header><span class="grip">⠿</span><h2>Subscribers</h2><span class="hint" id="subCount">0</span></header>
-        <div class="listhead" style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
           <input type="checkbox" id="selAll" aria-label="Select all" hidden style="accent-color:var(--gold);width:15px;height:15px">
           <span class="mono" style="font-size:11.5px;color:var(--mut)" id="selInfo"></span>
         </div>
@@ -196,7 +196,7 @@ main::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-grad
   <p>Mission control is keyed. Paste your ADMIN_TOKEN to open the live subscriber, revenue and webhook board.</p>
   <input id="keyInput" type="password" placeholder="ADMIN_TOKEN" aria-label="Admin token">
   <button id="keyBtn">Open mission control</button>
-  <p class="err" id="gateErr" hidden>That key was rejected. Check the ADMIN_TOKEN secret in Supabase.</p>
+  <p class="err" id="gateErr" hidden>That key was rejected, or the API is unreachable. Check the ADMIN_TOKEN secret and your connection.</p>
 </div>
 
 <div class="scrim" id="scrim"></div>
@@ -216,7 +216,7 @@ main::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-grad
 <script>
 (function(){
 "use strict";
-var API="https://khdnibwyzqhbpkgfppt.supabase.co/functions/v1/admin-data";
+var API="https://khdri1bwyzqhbpkgfppt.supabase.co/functions/v1/admin-data";
 var HUES=["#ffb020","#c8f542","#3aa6ff","#2dd4bf","#e858c8","#ff5c39","#10a35a"];
 var $=function(s){return document.querySelector(s)};
 var KEY=localStorage.getItem("or_admin_key")||new URLSearchParams(location.search).get("key")||"";
@@ -332,7 +332,6 @@ $("#saveView").addEventListener("click",function(){
 $("#viewName").addEventListener("keydown",function(e){if(e.key==="Enter")$("#saveView").click()});
 $("#views").addEventListener("change",function(e){var v=prefs.views[e.target.value];if(!v){state.view="";return}state.view=e.target.value;state.st=v.st;state.q=v.q;state.sort=v.sort;state.density=v.density;$("#q").value=v.q;$("#sort").value=v.sort;$("#density").setAttribute("aria-pressed",v.density);document.querySelectorAll(".fchip").forEach(function(x){x.setAttribute("aria-pressed",x.dataset.st===v.st?"true":"false")});render();toast("View applied")});
 $("#delView").addEventListener("click",function(){var n=state.view||$("#views").value;if(!n||!prefs.views[n]){toast("Choose a saved view first");return}var b=prefs.views[n];delete prefs.views[n];save();state.view="";refreshViews();toast("View deleted",function(){prefs.views[n]=b;save();refreshViews();toast("View restored")})});
-/* drawer */
 var dEmail=null;
 function openSub(email){
   var s=SUBS.filter(function(x){return x.email===email})[0];if(!s)return;dEmail=email;
@@ -358,7 +357,6 @@ $("#scrim").addEventListener("click",closeDrawer);
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeDrawer()});
 $("#dActivate").addEventListener("click",function(){if(dEmail)setStatus([dEmail],"active",true)});
 $("#dCancel").addEventListener("click",function(){if(dEmail)setStatus([dEmail],"cancelled",true)});
-/* feed */
 function evClass(t){if(t==="charge.success")return"charge";if(t==="subscription.create")return"sub";if(t==="subscription.disable")return"off";return"other"}
 function renderFeed(){
   $("#feed").innerHTML=EVENTS.slice(0,20).map(function(ev,i){
@@ -366,7 +364,6 @@ function renderFeed(){
   }).join("")||'<div class="empty">No webhook events yet.</div>';
 }
 $("#feed").addEventListener("click",function(e){var b=e.target.closest(".ev");if(b)openEvent(EVENTS[+b.dataset.i])});
-/* charts */
 function renderCharts(){
   var months={};
   EVENTS.forEach(function(ev){
@@ -376,7 +373,7 @@ function renderCharts(){
     months[k]=(months[k]||0)+(d.amount||0)/100;
   });
   var keys=Object.keys(months).sort().slice(-6);
-  if(!keys.length)keys=[String(new Date().toISOString()).slice(0,7)],months[keys[0]]=0;
+  if(!keys.length){keys=[String(new Date().toISOString()).slice(0,7)];months[keys[0]]=0}
   var max=Math.max.apply(null,keys.map(function(k){return months[k]}).concat([1]));
   var bw=640/keys.length;
   var svg='<line x1="0" y1="190" x2="640" y2="190" stroke="rgba(200,245,66,.25)"/>';
@@ -414,7 +411,6 @@ function renderCharts(){
   $("#srcChart").innerHTML=ss;
   $("#srcLegend").innerHTML=sk.map(function(k,i){return'<span><i style="background:'+HUES[(i+2)%HUES.length]+'"></i>'+k+' · '+src[k]+'</span>'}).join("");
 }
-/* panel drag reorder */
 function applyOrder(){
   if(!prefs.order)return;
   prefs.order.forEach(function(spec){
@@ -431,17 +427,17 @@ document.querySelectorAll(".panel>header").forEach(function(h){
   h.addEventListener("dragstart",function(e){dragId=h.parentElement.id;e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/plain",dragId)}catch(err){}});
 });
 document.querySelectorAll(".panel").forEach(function(p){
+  p.setAttribute("draggable","true");
   p.addEventListener("dragover",function(e){e.preventDefault();if(dragId&&p.id!==dragId)p.classList.add("dragover")});
   p.addEventListener("dragleave",function(){p.classList.remove("dragover")});
   p.addEventListener("drop",function(e){
     e.preventDefault();p.classList.remove("dragover");
     if(!dragId||p.id===dragId)return;
-    var el=document.getElementById(dragId);var target=p;
-    target.parentElement.insertBefore(el,target);
+    var el=document.getElementById(dragId);
+    p.parentElement.insertBefore(el,p);
     recordOrder();renderCharts();toast("Layout saved");dragId=null;
   });
 });
-document.querySelectorAll(".panel").forEach(function(p){p.setAttribute("draggable","true")});
 if(KEY)boot();
 })();
 </script>
