@@ -3,20 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Unsubscribed - Opportunity Radar</title>
+<title>Unsubscribed — Opportunity Radar</title>
 <style>
-  body { font-family: "Segoe UI", Arial, sans-serif; background: #f7f9f7; color: #0d1b12; margin: 0; padding: 60px 20px; text-align: center; }
-  .box { background: #fff; max-width: 500px; margin: 0 auto; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,.12); }
-  h1 { color: #0a7b3f; font-size: 28px; }
-  p { color: #5c6b60; font-size: 16px; }
-  a { color: #0a7b3f; }
+:root{--ink:#06120b;--ink2:#0b1f14;--emerald:#10a35a;--lime:#c8f542;--gold:#ffb020;--paper:#f7f5ee;--mist:#dfe8e0;--mut2:#5c6b60;--line:rgba(200,245,66,.16)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,Arial,sans-serif;min-height:100vh;display:grid;place-items:center;padding:40px 20px;color:var(--ink);
+  background:radial-gradient(700px 380px at 15% 0%,rgba(16,163,90,.14),transparent 60%),radial-gradient(600px 340px at 90% 100%,rgba(58,166,255,.12),transparent 60%),var(--paper)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E")}
+::-webkit-scrollbar{width:11px}::-webkit-scrollbar-track{background:var(--paper)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--emerald),#0e3b26);border-radius:8px;border:2px solid var(--paper)}
+::-webkit-scrollbar-thumb:hover{background:var(--lime)}
+html{scrollbar-color:var(--emerald) var(--paper)}
+::selection{background:var(--lime);color:var(--ink)}
+.card{position:relative;max-width:560px;width:100%;background:#fff;border:1px solid var(--mist);border-radius:20px;padding:46px 38px;text-align:center;box-shadow:0 30px 70px -40px rgba(6,18,11,.45);animation:rise .7s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.ring{width:86px;height:86px;margin:0 auto 22px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,rgba(16,163,90,.25),rgba(16,163,90,.08));border:1px solid rgba(16,163,90,.35)}
+.ring svg{width:40px;height:40px}
+.ring path{stroke:var(--emerald);stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .8s .3s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.kicker{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--emerald)}
+h1{font-size:clamp(26px,4.6vw,34px);letter-spacing:-.02em;margin:10px 0 12px}
+p{color:var(--mut2);font-size:15.5px}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.actions a{text-decoration:none;font-weight:700;font-size:14.5px;border-radius:10px;padding:13px 20px;transition:.25s}
+.home{background:var(--ink);color:var(--lime)}
+.home:hover{transform:translateY(-2px);box-shadow:0 12px 28px -12px rgba(6,18,11,.6)}
+.again{border:1px solid var(--mist);color:var(--mut2)}
+.again:hover{border-color:var(--emerald);color:var(--emerald)}
+.fine{margin-top:26px;font-size:12px;color:var(--mut2)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.ring path{stroke-dashoffset:0}}
 </style>
 </head>
 <body>
-<div class="box">
+<main class="card">
+  <div class="ring" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M9 21 L17 29 L31 12"/></svg></div>
+  <span class="kicker">Subscription cancelled</span>
   <h1>You have been unsubscribed.</h1>
-  <p>You will not receive further Opportunity Radar emails.</p>
-  <p><a href="https://onyifx.github.io/opportunity-radar-site/">← Back to home</a></p>
-</div>
+  <p>Your email has been removed from the Opportunity Radar daily brief. You will not receive further digest emails, and no further charges will be made to your subscription.</p>
+  <div class="actions">
+    <a class="home" href="index.html">← Back to home</a>
+    <a class="again" href="index.html#pricing">Changed your mind? Resubscribe</a>
+  </div>
+  <p class="fine">Cancelled in error? Resubscribing restores your brief from the next 06:00 WAT sweep. Questions: josephstones100@gmail.com</p>
+</main>
 </body>
 </html>
