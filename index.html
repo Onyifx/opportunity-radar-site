@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opportunity Radar — Nigerian tenders, grants & remote contracts daily</title>
+<meta name="description" content="Every morning, get curated Nigerian tenders, NGO grants and remote tech contracts in one email. 5,000 Naira per month.">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; color: #0d1b12; background: #f7f9f7; }
+  header { background: #0d1b12; color: #fff; padding: 56px 20px; text-align: center; }
+  header h1 { margin: 0 0 12px; font-size: 34px; line-height: 1.2; }
+  header p { margin: 0 auto; max-width: 640px; color: #cfd8cf; font-size: 18px; }
+  .box { background: #fff; max-width: 560px; margin: -34px auto 0; padding: 24px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,.12); }
+  .price { font-size: 26px; font-weight: 700; color: #0a7b3f; }
+  input[type=email] { width: 100%; padding: 14px; font-size: 16px; border: 1px solid #c8d4c8; border-radius: 8px; margin: 12px 0; }
+  button { width: 100%; padding: 14px; font-size: 17px; font-weight: 700; color: #fff; background: #0a7b3f; border: 0; border-radius: 8px; cursor: pointer; }
+  section { max-width: 760px; margin: 40px auto; padding: 0 20px; }
+  h2 { font-size: 22px; }
+  li { margin: 8px 0; }
+  .sample { background: #fff; border: 1px solid #e2e8e2; border-radius: 10px; padding: 16px; font-size: 14px; }
+  footer { text-align: center; color: #5c6b60; font-size: 13px; padding: 30px 20px 50px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Stop missing Nigerian tenders, grants &amp; remote contracts.</h1>
+  <p>We scan procurement portals, NGO boards and remote job markets every morning, and send you only the opportunities worth your time.</p>
+</header>
+
+<div class="box">
+  <div class="price">&#8358;5,000 / month</div>
+  <p>One curated digest every morning by email. Cancel anytime.</p>
+  <form onsubmit="subscribe(event)">
+    <input id="email" type="email" placeholder="Your email address" required>
+    <button type="submit">Subscribe now</button>
+  </form>
+  <p style="font-size:12px;color:#5c6b60;margin:10px 0 0;">Secure checkout by Paystack.</p>
+</div>
+
+<section>
+  <h2>What you get</h2>
+  <ul>
+    <li><strong>One email every morning by 6 AM</strong> — no more portal crawling.</li>
+    <li><strong>Nigerian tenders &amp; procurement notices</strong> as they are published.</li>
+    <li><strong>NGO grants and consultant calls</strong> relevant to Nigerian organisations.</li>
+    <li><strong>Remote tech contracts</strong> that pay in dollars.</li>
+    <li><strong>Deadlines and values</strong> extracted for you.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Sample digest</h2>
+  <div class="sample">
+    <strong>1. Senior Applied AI Engineer</strong><br>
+    Source: RemoteOK | Remote | Apply link included<br><br>
+    <strong>2. Account Director</strong><br>
+    Source: RemoteOK | Company: Princeton10 | Location: Remote<br><br>
+    <strong>3. Business Development Representative</strong><br>
+    Source: RemoteOK | Company: GitLab | Location: EMEA
+  </div>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <ul>
+    <li>1. You subscribe with your email and pay &#8358;5,000 via Paystack.</li>
+    <li>2. The radar scans sources every morning at 6 AM Nigerian time.</li>
+    <li>3. The digest lands in your inbox. One contract won pays for years of subscription.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>FAQ</h2>
+  <ul>
+    <li><strong>Do you guarantee I will win a tender?</strong> No. We guarantee you see opportunities early and clearly.</li>
+    <li><strong>Can I cancel?</strong> Yes, anytime. Reply UNSUBSCRIBE to any email.</li>
+    <li><strong>Is my card safe?</strong> Payments are handled entirely by Paystack. We never see your card.</li>
+  </ul>
+</section>
+
+<footer>
+  Opportunity Radar · Nigeria<br>
+  Alerts are informational only and do not guarantee awards or grants.
+</footer>
+
+<script>
+function subscribe(e) {
+  e.preventDefault();
+  var email = document.getElementById("email").value.trim();
+  window.location.href = "https://khdnibwyzqhbpkgfppt.supabase.co/functions/v1/subscribe?email=" + encodeURIComponent(email);
+}
+</script>
+</body>
+</html>
