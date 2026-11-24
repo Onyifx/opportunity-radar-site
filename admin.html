@@ -362,7 +362,7 @@ $("#dCancel").addEventListener("click",function(){if(dEmail)setStatus([dEmail],"
 function evClass(t){if(t==="charge.success")return"charge";if(t==="subscription.create")return"sub";if(t==="subscription.disable")return"off";return"other"}
 function renderFeed(){
   $("#feed").innerHTML=EVENTS.slice(0,20).map(function(ev,i){
-    return '<button class="ev" data-i="'+i+'"><span class="k '+evClass(ev.event_type)+'">'+ev.event_type+'</span><span>'+((ev.payload&&ev.payload.data&&ev.payload.data.customer&&ev.payload.data.customer.email)||"")+'</span><span class="t">'+String(ev.received_at||"").slice(5,16).replace("T"," ")+'</span></button>';
+    return '<button class="ev" data-i="'+i+'"><span class="k '+evClass(ev.event_type)+'">'+ev.event_type+'</span><span>'+((ev.payload&&ev.payload.data&&ev.payload.data.customer&&ev.payload.data.customer.email)||"")+'</span><span class="t">'+String(ev.received_at||ev.created_at||"").slice(5,16).replace("T"," ")+'</span></button>';
   }).join("")||'<div class="empty">No webhook events yet.</div>';
 }
 $("#feed").addEventListener("click",function(e){var b=e.target.closest(".ev");if(b)openEvent(EVENTS[+b.dataset.i])});
