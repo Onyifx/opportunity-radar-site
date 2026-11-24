@@ -371,7 +371,7 @@ function renderCharts(){
   EVENTS.forEach(function(ev){
     if(ev.event_type!=="charge.success")return;
     var d=ev.payload&&ev.payload.data;if(!d)return;
-    var k=String(d.paid_at||ev.received_at||"").slice(0,7);
+    var k=String(d.paid_at||ev.received_at||ev.created_at||"").slice(0,7);
     months[k]=(months[k]||0)+(d.amount||0)/100;
   });
   var keys=Object.keys(months).sort().slice(-6);
