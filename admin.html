@@ -348,7 +348,7 @@ function openEvent(ev){
   dEmail=null;
   $("#dPill").textContent=ev.event_type;$("#dPill").className="pill active";
   $("#dTitle").textContent="Webhook payload";
-  $("#dList").innerHTML="<dt>Received</dt><dd>"+String(ev.received_at||"").slice(0,19).replace("T"," ")+"</dd><dt>Provider</dt><dd>"+ev.provider+"</dd>";
+  $("#dList").innerHTML="<dt>Received</dt><dd>"+String(ev.received_at||ev.created_at||"").slice(0,19).replace("T"," ")+"</dd><dt>Provider</dt><dd>"+ev.provider+"</dd>";
   $("#dActs").style.display="none";$("#dJson").hidden=false;
   $("#dJson").textContent=JSON.stringify(ev.payload,null,2);
   $("#drawer").classList.add("on");$("#scrim").classList.add("on");
