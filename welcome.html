@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Welcome aboard — Opportunity Radar</title>
 <style>
-:root{--ink:#06120b;--ink2:#0b1f14;--emerald:#10a35a;--lime:#c8f542;--gold:#ffb020;--sky:#3aa6ff;--coral:#ff5c39;--tx:#eaf4ec;--mut:#9db8a6;--line:rgba(200,245,66,.16);--mono:ui-monospace,Consolas,monospace}
+:root{--ink:#06120b;--ink2:#0b1f14;--emerald:#10a35a;--lime:#c8f542;--gold:#ffb020;--tx:#eaf4ec;--mut:#9db8a6;--line:rgba(200,245,66,.16);--mono:ui-monospace,Consolas,monospace}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Segoe UI",system-ui,Arial,sans-serif;min-height:100vh;color:var(--tx);display:grid;place-items:center;padding:50px 20px;
- background:radial-gradient(800px 420px at 12% -10%,rgba(16,163,90,.3),transparent 60%),radial-gradient(700px 400px at 90% 110%,rgba(58,166,255,.18),transparent 60%),linear-gradient(180deg,var(--ink),var(--ink2))}
+body{font-family:"Segoe UI",system-ui,Arial,sans-serif;min-height:100vh;color:var(--tx);display:grid;place-items:center;padding:50px 20px;background:radial-gradient(800px 420px at 12% -10%,rgba(16,163,90,.3),transparent 60%),radial-gradient(700px 400px at 90% 110%,rgba(58,166,255,.18),transparent 60%),linear-gradient(180deg,var(--ink),var(--ink2))}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E")}
 ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--ink2)}
 ::-webkit-scrollbar-thumb{background:linear-gradient(var(--emerald),var(--ink2));border-radius:8px;border:2px solid var(--ink2)}
@@ -25,20 +24,19 @@ html{scrollbar-color:var(--emerald) var(--ink2)}
 h1{font-size:clamp(26px,4.6vw,36px);letter-spacing:-.02em;margin:10px 0 12px}
 p{color:var(--mut);font-size:15.5px}
 .steps{list-style:none;margin:26px 0;text-align:left;display:grid;gap:10px}
-.steps li{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:12px 15px;font-size:14px;color:var(--mut);transition:.4s}
+.steps li{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:12px 15px;font-size:14px;color:var(--mut)}
 .steps li i{font-style:normal;width:22px;height:22px;flex:none;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--mut)}
 .steps li.done{color:var(--tx);border-color:rgba(16,163,90,.5);background:rgba(16,163,90,.1)}
 .steps li.done i{background:var(--emerald);border-color:var(--emerald);color:#fff}
 .cd{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--lime);margin:8px 0 2px}
 .cd small{display:block;font-size:10.5px;letter-spacing:.18em;color:var(--mut);margin-top:3px}
 .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
-.actions a,.actions button{text-decoration:none;font-weight:700;font-size:14px;border-radius:10px;padding:12px 20px;transition:.25s;border:0}
+.actions a{text-decoration:none;font-weight:700;font-size:14px;border-radius:10px;padding:12px 20px}
 .primary{background:var(--lime);color:var(--ink)}
 .primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px -10px rgba(200,245,66,.6)}
-.ghost{border:1px solid var(--line)!important;background:transparent;color:var(--mut)}
-.ghost:hover{color:var(--lime);border-color:var(--lime)!important}
+.ghost{border:1px solid var(--line);color:var(--mut)}
+.ghost:hover{color:var(--lime);border-color:var(--lime)}
 .retry{background:var(--gold);color:var(--ink)}
-.retry:hover{transform:translateY(-2px);box-shadow:0 12px 30px -10px rgba(255,176,32,.6)}
 .fine{margin-top:22px;font-size:12px;color:var(--mut)}
 .err{color:#ffb4a3}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
@@ -47,17 +45,16 @@ p{color:var(--mut);font-size:15.5px}
 <body>
 <main class="card">
   <div class="scope" aria-hidden="true"><i></i><b></b></div>
-  <span class="kicker" id="kick">Confirming payment</span>
-  <h1 id="title">Activating your brief…</h1>
-  <p id="sub">We are confirming your Paystack transaction and switching your subscription on. This usually takes a few seconds.</p>
+  <span class="kicker" id="kick">Confirming</span>
+  <h1 id="title">Reading your payment result…</h1>
+  <p id="sub"></p>
   <ul class="steps">
     <li id="st1"><i>1</i>Payment received by Paystack</li>
     <li id="st2"><i>2</i>Subscription activated in our database</li>
     <li id="st3"><i>3</i>First brief scheduled for 06:00 WAT</li>
   </ul>
   <div class="cd" id="cd">--:--:--<small>UNTIL YOUR FIRST SWEEP</small></div>
-  <div class="actions">
-    <button class="retry" id="retryBtn" hidden>Retry confirmation</button>
+  <div class="actions" id="acts">
     <a class="primary" href="console.html?preview=1">Preview your console</a>
     <a class="ghost" href="index.html">Back to home</a>
   </div>
@@ -66,63 +63,41 @@ p{color:var(--mut);font-size:15.5px}
 <script>
 (function(){
 "use strict";
-var API="https://khdri1bwyzqhbpkgfppt.supabase.co/functions/v1/";
-var p=new URLSearchParams(location.search);
-var ref=p.get("reference")||p.get("trxref")||"";
-var tries=0,busy=false,seq=0;
+var q=new URLSearchParams(location.search);
+var status=q.get("status")||"";
+var email=q.get("email")||"your email";
+var amount=Number(q.get("amount")||5000);
+var plan=q.get("plan")||"Opportunity Radar Monthly";
+var reason=q.get("reason")||"";
+var reference=q.get("reference")||"";
+var via=q.get("via")||"";
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+if(status==="success"){
+  document.getElementById("kick").textContent="Subscription active";
+  document.getElementById("title").textContent="Welcome aboard.";
+  document.getElementById("sub").textContent="Payment of ₦"+amount.toLocaleString()+" confirmed for "+email+" on "+plan+". Your first brief lands at 06:00 WAT.";
+  ["st1","st2","st3"].forEach(function(id){document.getElementById(id).classList.add("done")});
+}else if(status==="fail"){
+  document.getElementById("kick").textContent="Check needed";
+  document.getElementById("title").textContent="We could not confirm yet.";
+  document.getElementById("sub").innerHTML='<span class="err">Reason: '+esc(reason||"unknown")+'.</span> Reload in a minute — activation webhooks can lag. Your subscription still activates via webhook.';
+  if(via&&reference){
+    var a=document.createElement("a");a.className="retry";a.textContent="Retry confirmation";
+    a.href=via+"?reference="+encodeURIComponent(reference);
+    document.getElementById("acts").insertBefore(a,document.getElementById("acts").firstChild);
+  }
+}else{
+  document.getElementById("kick").textContent="No reference";
+  document.getElementById("title").textContent="Nothing to confirm.";
+  document.getElementById("sub").textContent="This page confirms a payment. Reach it from the Paystack redirect after checkout.";
+}
 function tick(){
   var now=new Date(),next=new Date(now);next.setUTCHours(5,0,0,0);
   if(next<=now)next.setUTCDate(next.getUTCDate()+1);
-  var s=Math.floor((next-now)/1000);function q(n){return(n<10?"0":"")+n}
-  document.getElementById("cd").innerHTML=q(Math.floor(s/3600))+":"+q(Math.floor(s%3600/60))+":"+q(s%60)+"<small>UNTIL YOUR FIRST SWEEP</small>";
+  var s=Math.floor((next-now)/1000);function p(n){return(n<10?"0":"")+n}
+  document.getElementById("cd").innerHTML=p(Math.floor(s/3600))+":"+p(Math.floor(s%3600/60))+":"+p(s%60)+"<small>UNTIL YOUR FIRST SWEEP</small>";
 }
 tick();setInterval(tick,1000);
-function done(email,amount){
-  document.getElementById("st1").classList.add("done");
-  document.getElementById("st2").classList.add("done");
-  document.getElementById("st3").classList.add("done");
-  document.getElementById("kick").textContent="Subscription active";
-  document.getElementById("title").textContent="Welcome aboard.";
-  document.getElementById("sub").textContent="Payment of ₦"+Number(amount||5000).toLocaleString()+" confirmed for "+(email||"your email")+". Your first brief lands at 06:00 WAT.";
-  document.getElementById("retryBtn").hidden=true;
-}
-function fail(msg){
-  document.getElementById("kick").textContent="Check needed";
-  document.getElementById("title").textContent="We could not confirm yet.";
-  document.getElementById("sub").innerHTML='<span class="err">'+msg+'</span> If you completed payment, retry now or in a minute — activation webhooks can lag during provider incidents.';
-  document.getElementById("retryBtn").hidden=false;
-}
-function poll(){
-  if(busy)return;busy=true;tries++;
-  var name="__orv"+(++seq)+String(Date.now());
-  var s=document.createElement("script");
-  var settled=false;
-  var to=setTimeout(function(){if(settled)return;settled=true;cleanup();again("The confirmation service timed out.")},8000);
-  function cleanup(){delete window[name];if(s.parentNode)s.parentNode.removeChild(s)}
-  function again(kind){
-    busy=false;
-    if(tries<10){setTimeout(poll,2500)}
-    else fail(kind+" (attempt "+tries+") Supabase may be in an incident — your subscription still activates via webhook.");
-  }
-  window[name]=function(j){
-    if(settled)return;settled=true;clearTimeout(to);cleanup();busy=false;
-    if(j&&(j.status==="success"||j.status==="active")){done(j.email,j.amount);return}
-    if(tries<10){setTimeout(poll,3000)}
-    else fail("Transaction status: "+((j&&j.status)||"unknown")+".");
-  };
-  s.onerror=function(){if(settled)return;settled=true;clearTimeout(to);cleanup();again("Network error while confirming.")};
-  s.src=API+"verify-payment?reference="+encodeURIComponent(ref)+"&callback="+name;
-  document.head.appendChild(s);
-}
-document.getElementById("retryBtn").addEventListener("click",function(){
-  tries=0;
-  document.getElementById("kick").textContent="Confirming payment";
-  document.getElementById("title").textContent="Activating your brief…";
-  document.getElementById("sub").textContent="Re-checking your Paystack transaction now.";
-  this.hidden=true;poll();
-});
-if(!ref){fail("No payment reference in this link.");}
-else poll();
 })();
 </script>
 </body>
