@@ -61,7 +61,7 @@ p{color:var(--mut);font-size:15.5px}
     <a class="primary" href="console.html?preview=1">Preview your console</a>
     <a class="ghost" href="index.html">Back to home</a>
   </div>
-  <p class="fine" id="fine">Your private console link arrives inside every brief email. Keep it safe — it is your key.</p>
+  <p class="fine">Your private console link arrives inside every brief email. Keep it safe — it is your key.</p>
 </main>
 <script>
 (function(){
@@ -69,7 +69,7 @@ p{color:var(--mut);font-size:15.5px}
 var API="https://khdri1bwyzqhbpkgfppt.supabase.co/functions/v1/";
 var p=new URLSearchParams(location.search);
 var ref=p.get("reference")||p.get("trxref")||"";
-var tries=0,busy=false;
+var tries=0,busy=false,seq=0;
 function tick(){
   var now=new Date(),next=new Date(now);next.setUTCHours(5,0,0,0);
   if(next<=now)next.setUTCDate(next.getUTCDate()+1);
@@ -89,19 +89,30 @@ function done(email,amount){
 function fail(msg){
   document.getElementById("kick").textContent="Check needed";
   document.getElementById("title").textContent="We could not confirm yet.";
-  document.getElementById("sub").innerHTML='<span class="err">'+msg+'</span> If you completed payment, your activation webhook may still be in flight — retry, or contact josephstones100@gmail.com.';
+  document.getElementById("sub").innerHTML='<span class="err">'+msg+'</span> If you completed payment, retry now or in a minute — activation webhooks can lag during provider incidents.';
   document.getElementById("retryBtn").hidden=false;
 }
 function poll(){
   if(busy)return;busy=true;tries++;
-  fetch(API+"verify-payment?reference="+encodeURIComponent(ref))
-    .then(function(r){if(!r.ok)throw new Error("http");return r.json()})
-    .then(function(j){
-      busy=false;
-      if(j.status==="success"||j.status==="active"){done(j.email,j.amount);return}
-      if(tries<10){setTimeout(poll,3000)}else fail("Transaction status: "+(j.status||"unknown")+".");
-    })
-    .catch(function(){busy=false;if(tries<10)setTimeout(poll,3000);else fail("Network error while confirming.")});
+  var name="__orv"+(++seq)+String(Date.now());
+  var s=document.createElement("script");
+  var settled=false;
+  var to=setTimeout(function(){if(settled)return;settled=true;cleanup();again("The confirmation service timed out.")},8000);
+  function cleanup(){delete window[name];if(s.parentNode)s.parentNode.removeChild(s)}
+  function again(kind){
+    busy=false;
+    if(tries<10){setTimeout(poll,2500)}
+    else fail(kind+" (attempt "+tries+") Supabase may be in an incident — your subscription still activates via webhook.");
+  }
+  window[name]=function(j){
+    if(settled)return;settled=true;clearTimeout(to);cleanup();busy=false;
+    if(j&&(j.status==="success"||j.status==="active")){done(j.email,j.amount);return}
+    if(tries<10){setTimeout(poll,3000)}
+    else fail("Transaction status: "+((j&&j.status)||"unknown")+".");
+  };
+  s.onerror=function(){if(settled)return;settled=true;clearTimeout(to);cleanup();again("Network error while confirming.")};
+  s.src=API+"verify-payment?reference="+encodeURIComponent(ref)+"&callback="+name;
+  document.head.appendChild(s);
 }
 document.getElementById("retryBtn").addEventListener("click",function(){
   tries=0;
